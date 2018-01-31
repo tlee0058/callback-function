@@ -1,0 +1,56 @@
+// basic caller + logger example to familiarize with data flow between params
+function caller(callback, info) {
+    var stuff = "hello world";
+    callback(info);
+}
+
+function logger(data) {
+    console.log(data);
+}
+
+// this is essentially the same thing.
+// the second one is the syntax we're used to seeing with jQuery
+caller(logger, 'hello world!');
+caller(function(data) {
+    console.log(data);
+}, "hello world");
+
+// take index1, this is from the invocation of get();
+// accept the callback
+function get(index1, callback) {
+    // set a variable so that there is scope. This is to demonstrate that returning returnedData is fruitless because it runs well before returnedData is set.
+    var returnedData;
+    // look at the docs for setTimeout
+    // this allows us to call a function asynchronously, taking it out of the flow of the code.
+    // index2 is to illustrate that this is a different parameter, that will define its own function's scope, it is being PASSED to this function at the line just before the return statement
+    setTimeout(function(index2) {
+        // overwrite returnedData, which this function has access to(access to parent scope)
+        returnedData = { 
+            people: [
+                { name: "Wes", 
+                    favoriteLanguage: "Javascript", 
+                    city: "Denver" 
+                }, 
+                { 
+                    name: "Todd", 
+                    favoriteLanguage: "Ruby", 
+                    city: "Seattle" 
+                }, 
+                { 
+                    name: "Bob", 
+                    favoriteLanguage: "Python", 
+                    city: "The Moon" 
+                }
+            ]
+        }
+        // call callback INSIDE the asynchronous function!
+        // we have the overwritten returnedData in our callback's scope! NEAT!
+        callback(returnedData.people[index2]);
+    }, Math.random() * 5000, index1);
+    // see above. returning is useless
+    return returnedData;
+}
+
+get(2, function(data) {
+    console.log(data);
+});
